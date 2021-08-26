@@ -1,48 +1,57 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_stack/flutter_image_stack.dart';
+import 'package:image_picker/image_picker.dart' as ImagePicker;
 import 'package:photo_gallery_app/post.dart';
-
+import 'package:device_preview/device_preview.dart';
+import 'package:photo_gallery_app/utilities.dart';
 import 'data_source.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(DevicePreview(
+    enabled: false,
+    builder: (context) => MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      locale: DevicePreview.locale(context), // Add the locale here
+      builder: DevicePreview.appBuilder,
       title: 'Flutter Demo',
       theme: ThemeData(
-          appBarTheme: AppBarTheme(elevation: 0),
-          primaryColor: Colors.white,
-          accentColor: Colors.blue,
-            textTheme: Typography.material2018(platform: defaultTargetPlatform)
-              .white
-              .copyWith(
-                bodyText1: TextStyle(color: Colors.black, fontSize: 16),
-                bodyText2: TextStyle(color: Colors.black, fontSize: 14),
-                caption: TextStyle(color: Colors.black, fontSize: 12),
-                headline1: TextStyle(color: Colors.black, fontSize: 96),
-                headline2: TextStyle(color: Colors.black, fontSize: 60),
-                headline3: TextStyle(color: Colors.black, fontSize: 48),
-                headline4: TextStyle(color: Colors.black, fontSize: 34),
-                headline5: TextStyle(color: Colors.black, fontSize: 24),
-                headline6: TextStyle(color: Colors.black, fontSize: 22),
-                subtitle1: TextStyle(color: Colors.black, fontSize: 16),
-                subtitle2: TextStyle(color: Colors.black, fontSize: 14),
-                overline: TextStyle(color: Colors.black, fontSize: 10),
-                button: TextStyle(color: Colors.black, fontSize: 16),
-              ),),
+        appBarTheme: AppBarTheme(elevation: 0),
+        primaryColor: Colors.white,
+        accentColor: Colors.blue,
+        textTheme: Typography.material2018(platform: defaultTargetPlatform)
+            .white
+            .copyWith(
+              bodyText1: TextStyle(color: Colors.black, fontSize: 16),
+              bodyText2: TextStyle(color: Colors.black, fontSize: 14),
+              caption: TextStyle(color: Colors.black, fontSize: 12),
+              headline1: TextStyle(color: Colors.black, fontSize: 96),
+              headline2: TextStyle(color: Colors.black, fontSize: 60),
+              headline3: TextStyle(color: Colors.black, fontSize: 48),
+              headline4: TextStyle(color: Colors.black, fontSize: 34),
+              headline5: TextStyle(color: Colors.black, fontSize: 24),
+              headline6: TextStyle(color: Colors.black, fontSize: 22),
+              subtitle1: TextStyle(color: Colors.black, fontSize: 16),
+              subtitle2: TextStyle(color: Colors.black, fontSize: 14),
+              overline: TextStyle(color: Colors.black, fontSize: 10),
+              button: TextStyle(color: Colors.black, fontSize: 16),
+            ),
+      ),
       darkTheme: ThemeData(
           scaffoldBackgroundColor: Colors.black,
           appBarTheme: AppBarTheme(
-            elevation: 0,
-            backgroundColor: Colors.black,
-            iconTheme: IconThemeData(color: Colors.white)
-          ),
+              elevation: 0,
+              backgroundColor: Colors.black,
+              iconTheme: IconThemeData(color: Colors.white)),
           primaryColor: Colors.white,
           accentColor: Colors.blue,
           textTheme: Typography.material2018(platform: defaultTargetPlatform)
@@ -62,7 +71,6 @@ class MyApp extends StatelessWidget {
                 overline: TextStyle(color: Colors.white, fontSize: 10),
                 button: TextStyle(color: Colors.white, fontSize: 16),
               ),
-
           cardColor: Color.fromRGBO(31, 31, 31, 1)),
       themeMode: ThemeMode.system,
       home: HomeView(),
@@ -70,15 +78,69 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   HomeView({Key? key}) : super(key: key);
 
+  @override
+  _HomeViewState createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
   final List<String> _images = [
     'https://images.unsplash.com/photo-1593642532842-98d0fd5ebc1a?ixid=MXwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=2250&q=80',
     'https://images.unsplash.com/photo-1612594305265-86300a9a5b5b?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
     'https://images.unsplash.com/photo-1612626256634-991e6e977fc1?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1712&q=80',
     'https://images.unsplash.com/photo-1593642702749-b7d2a804fbcf?ixid=MXwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1400&q=80'
   ];
+  late List<Options> options;
+  late File imageFile;
+
+// capture image with camera
+  getProfileFromCamera() async {
+    await getImage(imageSource: ImagePicker.ImageSource.camera)
+        .then((file) async {
+      File? croppedFile = await getCroppedFile(file: file!.path);
+
+      if (croppedFile != null) {
+        setState(() {
+          imageFile = croppedFile;
+        });
+      }
+    });
+  }
+
+// select image from gallery
+  getProfileFromGallery() async {
+    await getImage(imageSource: ImagePicker.ImageSource.gallery)
+        .then((file) async {
+      File? croppedFile = await getCroppedFile(file: file!.path);
+
+      if (croppedFile != null) {
+        setState(() {
+          imageFile = croppedFile;
+        });
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    options = [
+      Options(
+          label: 'Select from Camera',
+          onTap: () {
+            Navigator.pop(context);
+            getProfileFromCamera();
+          }),
+      Options(
+          label: 'Select from Gallery',
+          onTap: () {
+            Navigator.pop(context);
+            getProfileFromGallery();
+          }),
+    ];
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +156,26 @@ class HomeView extends StatelessWidget {
         ),
         actions: [
           IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Platform.isIOS
+                    ? showCupertinoModalPopup<void>(
+                        context: context,
+                        builder: (context) {
+                          return CustomBottomSheetWidget(
+                            title: 'select an Image',
+                            options: options,
+                          );
+                        })
+                    : showModalBottomSheet<void>(
+                        context: context,
+                        builder: (context) {
+                          return CustomBottomSheetWidget(
+                            title: 'select an Image',
+                            height: 205,
+                            options: options,
+                          );
+                        });
+              },
               icon: Icon(
                 CupertinoIcons.camera,
                 color: Colors.blue,
@@ -152,6 +233,7 @@ class HomeView extends StatelessWidget {
   }
 }
 
+//custom widget class
 class PhotoCardWidget extends StatelessWidget {
   const PhotoCardWidget(
       {Key? key, required List<String> images, required Post post})
