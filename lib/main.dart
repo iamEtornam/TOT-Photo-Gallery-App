@@ -1,13 +1,14 @@
 import 'dart:io';
 
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_stack/flutter_image_stack.dart';
 import 'package:image_picker/image_picker.dart' as ImagePicker;
 import 'package:photo_gallery_app/post.dart';
-import 'package:device_preview/device_preview.dart';
 import 'package:photo_gallery_app/utilities.dart';
+
 import 'data_source.dart';
 
 void main() {
@@ -27,7 +28,6 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         appBarTheme: AppBarTheme(elevation: 0),
         primaryColor: Colors.white,
-        accentColor: Colors.blue,
         textTheme: Typography.material2018(platform: defaultTargetPlatform)
             .white
             .copyWith(
@@ -45,6 +45,7 @@ class MyApp extends StatelessWidget {
               overline: TextStyle(color: Colors.black, fontSize: 10),
               button: TextStyle(color: Colors.black, fontSize: 16),
             ),
+        colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Colors.blue),
       ),
       darkTheme: ThemeData(
           scaffoldBackgroundColor: Colors.black,
@@ -53,7 +54,6 @@ class MyApp extends StatelessWidget {
               backgroundColor: Colors.black,
               iconTheme: IconThemeData(color: Colors.white)),
           primaryColor: Colors.white,
-          accentColor: Colors.blue,
           textTheme: Typography.material2018(platform: defaultTargetPlatform)
               .white
               .copyWith(
@@ -71,7 +71,9 @@ class MyApp extends StatelessWidget {
                 overline: TextStyle(color: Colors.white, fontSize: 10),
                 button: TextStyle(color: Colors.white, fontSize: 16),
               ),
-          cardColor: Color.fromRGBO(31, 31, 31, 1)),
+          cardColor: Color.fromRGBO(31, 31, 31, 1),
+          colorScheme:
+              ColorScheme.fromSwatch().copyWith(secondary: Colors.blue)),
       themeMode: ThemeMode.system,
       home: HomeView(),
     );
