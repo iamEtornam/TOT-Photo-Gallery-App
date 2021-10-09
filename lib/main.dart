@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       builder: DevicePreview.appBuilder,
       title: 'Flutter Demo',
       theme: ThemeData(
-        appBarTheme: AppBarTheme(elevation: 0),
+        appBarTheme: AppBarTheme(elevation: 0, backgroundColor: Colors.white),
         primaryColor: Colors.white,
         textTheme: Typography.material2018(platform: defaultTargetPlatform)
             .white
@@ -121,6 +121,9 @@ class _HomeViewState extends State<HomeView> {
         setState(() {
           imageFile = croppedFile;
         });
+
+        showModalBottomSheet(
+            context: context, builder: (context) => Image.file(imageFile,fit: BoxFit.fitHeight,));
       }
     });
   }
@@ -207,7 +210,7 @@ class _HomeViewState extends State<HomeView> {
 
             return InkWell(
               onTap: () {
-                showBottomSheet(
+                showModalBottomSheet(
                     context: context,
                     backgroundColor: Colors.transparent,
                     builder: (context) {
